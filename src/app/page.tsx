@@ -76,7 +76,7 @@ export default function Home() {
       <textarea
         className="w-3/4 md:w-1/2 p-4 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         rows={2}
-        placeholder="Enter your headline here..."
+        placeholder="Enter your headline here e.g. Discover 12 Essential Website Tips for Every Business Owner"
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
       />
