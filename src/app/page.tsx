@@ -54,10 +54,11 @@ export default function Home() {
         </h1>
         <p className="text-lg md:text-xl mb-8">
           Struggling to write headlines that grab attention and drive results?
-          Our free AI-powered headline analyzer can help
+          Our free AI-powered headline analyzer can help. 
         </p>
       </div>
-      <div className="flex w-full mx-4 md:max-w-2xl justify-end">
+      <div className="flex w-full mx-4 md:max-w-2xl justify-between items-end">
+        <span className="mb-6 text-slate-300 text-sm">For better result please use english</span>
         <div className="mb-6">
           <select
             className="select select-bordered w-full max-w-xs"
@@ -75,7 +76,7 @@ export default function Home() {
       <textarea
         className="w-3/4 md:w-1/2 p-4 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         rows={2}
-        placeholder="Enter your text here..."
+        placeholder="Enter your headline here..."
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
       />
@@ -87,7 +88,7 @@ export default function Home() {
       </button>
 
       {error && (
-        <div className="m-8 text-center text-red-500">
+        <div className="m-8 text-center bg-red-100 rounded-lg p-4 text-red-500">
           <p>{error}</p>
         </div>
       )}
