@@ -1,12 +1,19 @@
 "use client";
 import { useLoadingDots } from "@/hooks/useLoadingDots";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useState } from "react";
+
+interface AnalysisResult {
+  score: number;
+  sentiment: string;
+  pros: string[];
+  cons: string[];
+  suggestions: string[];
+}
 
 export default function Home() {
   const [category, setCategory] = useState("Ads");
   const [inputText, setInputText] = useState("");
-  const [analysisResult, setAnalysisResult] = useState("");
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false); // State to manage loading indicator
   const [error, setError] = useState(""); // State to manage errors
   const loadingDots = useLoadingDots(); // Use the custom hook
@@ -16,20 +23,20 @@ export default function Home() {
     setError("");
 
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ category, inputText }),
       });
 
-      const data = await response.json();
+      const data: AnalysisResult | { error: string } = await response.json();
 
-      if (response.ok) {
-        setAnalysisResult(data);
+      if ('score' in data) {
+        setAnalysisResult(data as AnalysisResult);
       } else {
-        setError(data.error || "Unknown error occurred.");
+        setError((data as { error: string }).error || 'Unknown error occurred.');
       }
     } catch (error) {
       console.error("Error analyzing text:", error);
@@ -80,34 +87,31 @@ export default function Home() {
       </button>
 
       {error && (
-        <div className="m-8 text-center p-4 rounded-lg bg-red-100 text-red-500">
+        <div className="m-8 text-center text-red-500">
           <p>{error}</p>
         </div>
       )}
 
-      {analysisResult && !loading && (
+      {analysisResult && !loading && !error && (
         <div className="m-8 text-center text-white">
           <h2 className="text-xl font-bold mb-4">Analysis Result</h2>
           <div className="m-8 p-6 bg-gray-800 mx-4 md:max-w-2xl rounded-lg shadow-lg text-white">
             <div className="text-left">
-              <h3 className={`text-xl font-semibold `}>
-                Score:{" "}
-                <span
-                  className={`${
-                    analysisResult?.score >= 80
-                      ? "text-green-500" // light green for score >= 80
-                      : analysisResult?.score >= 50
-                      ? "text-yellow-500" // light orange for score between 50 and 79
-                      : "text-red-500" // light red for score below 50
-                  }`}
-                >
-                  {" "}
-                  {analysisResult?.score}
-                </span>
+              <h3
+                className={`text-xl font-semibold `}
+              >
+                Score: <span className={`${
+                  analysisResult?.score >= 80
+                    ? "text-green-500" // light green for score >= 80
+                    : analysisResult?.score >= 50
+                    ? "text-yellow-500" // light orange for score between 50 and 79
+                    : "text-red-500" // light red for score below 50
+                }`}> {analysisResult?.score}</span>
               </h3>
-              <p className={`text-lg font-semibold `}>
-                Sentiment:{" "}
-                <span className="text-base"> {analysisResult?.sentiment}</span>
+              <p
+                className={`text-lg font-semibold `}
+              >
+                Sentiment: <span className="text-base"> {analysisResult?.sentiment}</span>
               </p>
               {analysisResult?.pros && (
                 <div className="mt-4">
