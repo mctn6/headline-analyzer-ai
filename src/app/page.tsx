@@ -1,4 +1,5 @@
 "use client";
+import { useLoadingDots } from "@/hooks/useLoadingDots";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useState } from "react";
 
@@ -7,30 +8,34 @@ export default function Home() {
   const [inputText, setInputText] = useState("");
   const [analysisResult, setAnalysisResult] = useState("");
   const [loading, setLoading] = useState(false); // State to manage loading indicator
-
+  const [error, setError] = useState(""); // State to manage errors
+  const loadingDots = useLoadingDots(); // Use the custom hook
 
   const handleAnalyzeClick = async () => {
-    if (process.env.NEXT_PUBLIC_GOOGLE_API_KEY) {
-      setLoading(true); // Set loading to true when starting analysis
-      try {
-        const genAI = new GoogleGenerativeAI(
-          process.env.NEXT_PUBLIC_GOOGLE_API_KEY
-        );
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = `You are a senior copywriter. You are here to review and give good feedback for the headline copy '${inputText}' for placement ${category}, give your score from 1-100 and what needs to improve. Please return result as json object for your analyze (pay attention on your json format - don't not add comma on last index of json) with key score, sentiment, pros, cons, suggestions.`;
-    
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = await response.text(); // await here to get the text response
+    setLoading(true);
+    setError("");
 
-        setAnalysisResult(
-          JSON.parse(text.replaceAll("`", "").replace("json", ""))
-        );
-      } catch (error) {
-        console.error("Error analyzing text:", error);
-      } finally {
-        setLoading(false); // Set loading back to false after receiving response
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ category, inputText }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setAnalysisResult(data);
+      } else {
+        setError(data.error || "Unknown error occurred.");
       }
+    } catch (error) {
+      console.error("Error analyzing text:", error);
+      setError("Error analyzing text. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,29 +76,38 @@ export default function Home() {
         className="px-8 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         onClick={handleAnalyzeClick}
       >
-        {loading ? "Analyzing..." : "Analyze"}
+        {loading ? `Analyzing${loadingDots}` : "Analyze"}
       </button>
+
+      {error && (
+        <div className="m-8 text-center p-4 rounded-lg bg-red-100 text-red-500">
+          <p>{error}</p>
+        </div>
+      )}
 
       {analysisResult && !loading && (
         <div className="m-8 text-center text-white">
           <h2 className="text-xl font-bold mb-4">Analysis Result</h2>
           <div className="m-8 p-6 bg-gray-800 mx-4 md:max-w-2xl rounded-lg shadow-lg text-white">
             <div className="text-left">
-              <h3
-                className={`text-xl font-semibold `}
-              >
-                Score: <span className={`${
-                  analysisResult?.score >= 80
-                    ? "text-green-500" // light green for score >= 80
-                    : analysisResult?.score >= 50
-                    ? "text-yellow-500" // light orange for score between 50 and 79
-                    : "text-red-500" // light red for score below 50
-                }`}> {analysisResult?.score}</span>
+              <h3 className={`text-xl font-semibold `}>
+                Score:{" "}
+                <span
+                  className={`${
+                    analysisResult?.score >= 80
+                      ? "text-green-500" // light green for score >= 80
+                      : analysisResult?.score >= 50
+                      ? "text-yellow-500" // light orange for score between 50 and 79
+                      : "text-red-500" // light red for score below 50
+                  }`}
+                >
+                  {" "}
+                  {analysisResult?.score}
+                </span>
               </h3>
-              <p
-                className={`text-lg font-semibold `}
-              >
-                Sentiment: <span className="text-base"> {analysisResult?.sentiment}</span>
+              <p className={`text-lg font-semibold `}>
+                Sentiment:{" "}
+                <span className="text-base"> {analysisResult?.sentiment}</span>
               </p>
               {analysisResult?.pros && (
                 <div className="mt-4">
