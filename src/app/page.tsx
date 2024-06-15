@@ -49,10 +49,10 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
       <div className="mx-4 md:max-w-2xl text-center">
-        <h1 className="text-2xl md:text-5xl font-bold mb-8">
+        <h1 className="text-2xl md:text-5xl font-bold mb-8 text-slate-100">
           Boost Your Headlines with Free AI Analysis
         </h1>
-        <p className="text-lg md:text-xl mb-8">
+        <p className="text-lg md:text-xl mb-8 text-slate-300">
           Struggling to write headlines that grab attention and drive results?
           Our free AI-powered headline analyzer can help. 
         </p>
