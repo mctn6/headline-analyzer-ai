@@ -57,7 +57,7 @@ export default function Home() {
           Our free AI-powered headline analyzer can help. 
         </p>
       </div>
-      <div className="flex flex-col lg:flex-row w-full m-2 p-6 lg:m-2 justify-center items-center lg:p-2 mx-4 md:max-w-2xl lg:justify-between lg:items-end">
+      <div className="flex flex-col lg:flex-row w-full m-2 p-6 lg:m-2 justify-center items-center lg:p-2 mx-4 md:max-w-2xl lg:justify-between">
         <span className="mb-6 text-slate-300 text-sm">For better result please use english</span>
         <div className="mb-6">
           <select
